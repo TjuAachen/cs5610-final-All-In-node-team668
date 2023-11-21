@@ -1,0 +1,19 @@
+{
+  "name": "all-in-node-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TjuAachen/cs5610-final-All-In-node-team668.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TjuAachen/cs5610-final-All-In-node-team668/issues"
+  },
+  "homepage": "https://github.com/TjuAachen/cs5610-final-All-In-node-team668#readme"
+}
