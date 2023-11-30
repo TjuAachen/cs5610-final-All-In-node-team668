@@ -7,15 +7,15 @@ const userSchema = new mongoose.Schema(
     cellphone: { type: String, default: "000000000" },
     password: { type: String, required: true },
     // validate
-    gender: {
+    typeOfInvestor: {
       type: String,
       required: true,
-      default: "male",
-      enum: ["male", "female", "non-binary"],
+      default: "newbie",
+      enum: ["newbie", "experienced"],
     },
     isAdmin: { type: Boolean, default: false },
     isVip: { type: Boolean, default: false },
-    playlistsCount: { type: Number, default: 0 },
+    watchlistsCount: { type: Number, default: 0 },
     img: { type: String, default: "../../images/profile-avatar.jpeg" },
     createTime: { type: Date, default: Date.now },
     isDeleted: { type: Boolean, default: false },
