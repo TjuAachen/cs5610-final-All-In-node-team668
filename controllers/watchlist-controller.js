@@ -87,7 +87,7 @@ const findWatchlistByName = async (req, res) => {
     const page = parseInt(req.query.page, 10);
     const limit = parseInt(req.query.limit, 10);
     const watchlists = await watchlistDao.findLatestWatchlistsInPage(page, limit);
-    res.json(playlists);
+    res.json(watchlists);
   };
 
   export default (app) => {
