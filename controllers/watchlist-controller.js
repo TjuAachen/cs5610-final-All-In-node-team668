@@ -1,7 +1,7 @@
 import * as watchlistDao from "../dao/watchlist-dao.js"
 import * as stockDao from "../dao/stock-dao.js";
 import * as userDao from "../dao/user-dao.js";
-import * as stockWatchlistDao from "../dao/stockWatchlist-dao.js";
+import * as stockWatchlistDao from "../dao/stock-watchlist-dao.js";
 import * as commentDao from "../dao/comment-dao.js";
 import checkAdmin from "../middleWare/checkAdmin.js";
 
@@ -25,7 +25,7 @@ const findLatestWatchlists = async (req, res) => {
 // get all watchlists of one user
 const findWatchlistByUser = async (req, res) => {
   const user = req.params.user;
-  const watchlists = await watchlistDao.findPlayListsByUserId({
+  const watchlists = await watchlistDao.findWatchListsByUserId({
     user: user,
   });
   res.json(watchlists);
@@ -56,11 +56,59 @@ const findStocksByWatchlistId = async (req, res) => {
 const findWatchlistByName = async (req, res) => {
     const searchObj = req.body;
     // console.log("ffffffff: ", searchObj)
-    const foundPlaylists = await watchlistDao.findWatchlistByName(searchObj.watchlistName);
+    const foundWatchlists = await watchlistDao.findWatchlistByName(searchObj.watchlistName);
     if (foundWatchlists) {
       res.json(foundWatchlists);
     } else {
       // res.sendStatus(404);
       res.json(null);
     }
+  };
+
+  const deleteWatchlist = async (req, res) => {
+    const { _id } = req.body.watchlistObj;
+
+    const wl = await watchlistDao.findWatchlistById(_id);
+    const user = wl.user;
+
+    await watchlistDao.deleteWatchlist(_id);
+    // delete all records in stockWatchlist associate with the watchlist
+    await stockWatchlistDao.deleteStockWatchlistById(_id);
+    // delete all comments related to the watchlist
+    await commentDao.deleteComment({ watchlist: _id });
+  
+    // find remaining likedStocks
+    const data = await stockWatchlistDao.findStocksByUserId(user);
+    const stockList = data.map((stock) => stock.ticker);
+    res.json(stockList);
+  };
+
+  const findWatchlistsPagination = async (req, res) => {
+    const page = parseInt(req.query.page, 10);
+    const limit = parseInt(req.query.limit, 10);
+    const watchlists = await watchlistDao.findLatestWatchlistsInPage(page, limit);
+    res.json(playlists);
+  };
+
+  export default (app) => {
+    app.get("/api/watchlists/admin/count", checkAdmin, countWatchlists);
+    app.get("/api/watchlists/admin/lastpage", checkAdmin, findLatestWatchlists);
+    app.get(
+      "/api/watchlists/admin/pagination",
+      checkAdmin,
+      findWatchlistsPagination
+    );
+    app.delete("/api/watchlists/admin", checkAdmin, deleteWatchlist);
+  
+    app.get("/api/watchlists", findWatchlists);
+    app.get("/api/watchlists/:user", findWatchlistByUser);
+    app.get("/api/watchlists/details/:pid", findWatchlistDetailsById);
+    app.get("/api/watchlists/stocks/:pid", findStocksByWatchlistId);
+    // app.get("/api/watchlists/:loginUser/:watchlist", checkStocks);
+    app.get("/api/watchlistsdefault/:uid", findDefaultWatchlistByUser);
+    app.delete("/api/watchlists", deleteWatchlist);
+    app.post("/api/watchlists", createWatchlist);
+    app.put("/api/watchlists/:wid", updateWatchlist);
+  
+    app.post("/api/local-watchlists", findWatchlistByName);
   };

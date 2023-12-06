@@ -13,5 +13,5 @@ const stockSchema = new mongoose.Schema(
     },
     {collection: "stocks"}
 );
-export default songSchema;
+export default stockSchema;
 
