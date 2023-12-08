@@ -1,5 +1,4 @@
 import stockModel from "./models/stock-model.js";
-import watchlistModel from "./models/watchlist-model.js";
 
 export async function findStocksByTicker(ticker) {
     return stockModel.find({ ticker: ticker });
@@ -20,7 +19,7 @@ export const insertStockIfNotExist = (stock) =>
 // export const findStockById = (stockId) => stockModel.find({ _id: stockId });
 /*export const findStockByApiStockId = (apiStockId) =>
   stockModel.find({ apiStockId: apiStockId });*/
-export const findStockByIds = (ids) => stockModel.find({ _id: { $in: ids } });
+export const findStockByTickers = (tickers) => stockModel.find({ ticker: { $in: tickers } });
 export const createStock = (stock) => stockModel.create(stock);
 //export const findStockByStockName = (stockName) => stockModel.find({ stockName: { $in: stockName } });
 

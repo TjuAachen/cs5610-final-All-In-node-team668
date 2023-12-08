@@ -2,16 +2,24 @@ import axios from "axios";
 import dotenv from "dotenv";
 import { Yahoo_API_BASE, TwelveData_API_BASE, TwelveData_API_KEY, Tiingo_API_URL, NEWS_API_URL } from "../constants/constants.js";
 import moment from 'moment-timezone';
+import portfolioController, { updatePortfolio } from "./portfolio-controller.js";
+import { findPortfoliosByUserId } from "../dao/portfolio-dao.js";
 
 dotenv.config();
 
 const fmpApiKey = process.env.FMP_API_KEY;
 
 function getEpoch(date) {
-	let epoch = new Date(date).toLocaleString("en-US", {
-		timeZone: "America/Los_Angeles",
-	});
-	return epoch - 0;
+    let epoch = new Date(date).toLocaleString("en-US", {
+        timeZone: "America/Los_Angeles",
+    });
+    return epoch - 0;
+}
+
+function getMarketStatus(lastTimestamp) {
+    var diff = (new Date() - new Date(lastTimestamp)) / 1000;
+    let marketStatus = diff > 60 ? 0 : 1;
+    return marketStatus;
 }
 
 // convert response data from api to the data for the chart.
@@ -164,36 +172,36 @@ const getStockDescription = (req, res) => {
 const getHistoricalStockData = (req, res) => {
     let date = moment().subtract(2, "year").format().split("T")[0];
     const { ticker } = req.params;
-	let URL = Tiingo_API_URL + `/tiingo/daily/${ticker}/prices?startDate=${date}&resampleFreq=daily&token=${process.env.Tiingo_API_KEY}`;
-	axios
-		.get(URL)
-		.then((response) => {
-			results = { historicalData: [], Volume: [] };
-			response.data.map((result) => {
-				let timestamp = getEpoch(result.date);
-				results.historicalData.push([
-					timestamp,
-					result.open,
-					result.high,
-					result.low,
-					result.close,
-				]);
-				results.Volume.push([timestamp, result.volume]);
-			});
-			res.json(results);
-		})
-		.catch((error) => {
-			if (error.response) {
-				console.log(
-					`Historical Chart Data API failed. ${error.response.status}`
-				);
-			}
-			console.log("Error encountered during Last stock day chart data");
-		});
+    let URL = Tiingo_API_URL + `/tiingo/daily/${ticker}/prices?startDate=${date}&resampleFreq=daily&token=${process.env.Tiingo_API_KEY}`;
+    axios
+        .get(URL)
+        .then((response) => {
+            const results = { historicalData: [], Volume: [] };
+            response.data.map((result) => {
+                let timestamp = getEpoch(result.date);
+                results.historicalData.push([
+                    timestamp,
+                    result.open,
+                    result.high,
+                    result.low,
+                    result.close,
+                ]);
+                results.Volume.push([timestamp, result.volume]);
+            });
+            res.json(results);
+        })
+        .catch((error) => {
+            if (error.response) {
+                console.log(
+                    `Historical Chart Data API failed. ${error.response.status}`
+                );
+            }
+            console.log("Error encountered during Last stock day chart data");
+        });
 }
 
-const getStockRecentData = (req, res) => {
-    const {ticker} = req.params;
+const getStockHighlights = (req, res) => {
+    const { ticker } = req.params;
     const tingoo_token = process.env.Tiingo_API_KEY;
     let DAILY_URL = Tiingo_API_URL + `/tiingo/daily/${ticker}?token=${tingoo_token}`;
     let DATA_URL = Tiingo_API_URL + `/iex/?tickers=${ticker}&token=${tingoo_token}`;
@@ -201,44 +209,100 @@ const getStockRecentData = (req, res) => {
     const promises = [axios.get(DAILY_URL), axios.get(DATA_URL)]
 
     axios
-		.all(promises)
-		.then(
-			axios.spread((...responses) => {
-				const resp_One = responses[0].data;
-				const resp_Two = responses[1].data[0];
+        .all(promises)
+        .then(
+            axios.spread((...responses) => {
+                const resp_One = responses[0].data;
+                const resp_Two = responses[1].data[0];
 
-				let change = resp_Two.last - resp_Two.prevClose;
-				var currentTimestamp = moment()
-					.tz("America/Los_Angeles")
-					.format("YYYY-MM-DD HH:mm:ss");
-				var lastTimestamp = getTimestamp(resp_Two.timestamp);
-				let marketStatus = getMarketStatus(resp_Two.timestamp);
+                let change = resp_Two.last - resp_Two.prevClose;
+                var currentTimestamp = moment()
+                    .tz("America/Los_Angeles")
+                    .format("YYYY-MM-DD HH:mm:ss");
+                var lastTimestamp = getTimestamp(resp_Two.timestamp);
+                let marketStatus = getMarketStatus(resp_Two.timestamp);
 
-				let results = {
-					ticker: resp_One.ticker,
-					name: resp_One.name,
-					exchangeCode: resp_One.exchangeCode,
-					last: resp_Two.last,
-					change: change,
-					changePercent: (change * 100) / resp_Two.prevClose,
-					currentTimestamp: currentTimestamp,
-					marketStatus: marketStatus,
-					lastTimestamp: lastTimestamp,
-				};
-				res.json(results);
-			})
-		)
-		.catch((errors) => {
-			if (errors.response) {
-				console.log(
-					`StockRecent API failed. Error Status:  ${errors.response.status}`
-				);
-			} else {
-				console.log(`StockRecent API failed`)
-			}
-		});
+                let results = {
+                    ticker: resp_One.ticker,
+                    name: resp_One.name,
+                    exchangeCode: resp_One.exchangeCode,
+                    last: resp_Two.last,
+                    change: change,
+                    changePercent: (change * 100) / resp_Two.prevClose,
+                    currentTimestamp: currentTimestamp,
+                    marketStatus: marketStatus,
+                    lastTimestamp: lastTimestamp,
+                };
+                res.json(results);
+            })
+        )
+        .catch((errors) => {
+            if (errors.response) {
+                console.log(
+                    `StockRecent API failed. Error Status:  ${errors.response.status}`
+                );
+            } else {
+                console.log(`StockRecent API failed`)
+            }
+        });
+}
 
+export const getLatestChartData = (req, res) => {
+    const { ticker } = req.params;// Assuming ticker is received as a parameter
 
+    let timestamp_URL = Tiingo_API_URL + `/iex/?tickers=${ticker}&token=${process.env.Tiingo_API_KEY}`;
+    let timestampPromise = axios.get(timestamp_URL);
+    let chartPromise = timestampPromise
+        .then((response) => {
+            return response.data[0].timestamp;
+        })
+        .then((timestamp) => {
+            let stamp = timestamp.split("T")[0];
+            return axios.get(
+                `https://api.tiingo.com/iex/${ticker}/prices?startDate=${stamp}&resampleFreq=4min&token=${process.env.Tiingo_API_KEY}`
+            );
+        });
+
+    axios
+        .all([timestampPromise, chartPromise])
+        .then(
+            axios.spread((...responses) => {
+                let results = {};
+
+                const changeResponse = responses[0].data[0];
+                results.change = changeResponse.last - changeResponse.prevClose;
+                results.marketStatus = getMarketStatus(changeResponse.timestamp);
+
+                const dataResponse = responses[1];
+                results.chart = dataResponse.data.map((instance) => {
+                    return [getEpoch(instance.date), instance.close];
+                });
+
+                res.status(200).json(results); // Sending JSON response
+            })
+        )
+        .catch((errors) => {
+            if (errors.response) {
+                console.log(`Daily Chart Data failed. Error Status: ${errors.response.status}`);
+                res.status(errors.response.status).send(`Error: ${errors.response.status}`);
+            } else {
+                res.status(400).json({ error: "Invalid ticker for Stock Daily data." });
+            }
+        });
+};
+
+export const updatePortfolioPriceByUser = async (req, res) => {
+    // get the latest close price and update it:
+    const { uid } = req.params;
+    await findPortfoliosByUserId(uid).then((response) => {
+        const stocksInPortfolio = response.data;
+        stocksInPortfolio.forEach(async (portfolio) => {
+            await getStockSummary(req, res).then((data) => { portfolio.currentPrice = data.close; portfolio.return = (data.close - portfolio.buyPrice) * portfolio.shares })
+            await portfolioController.updatePortfolio(portfolio);
+        });
+    }).catch((error)=> {
+        res.status(404)
+    })
 }
 
 
@@ -259,14 +323,20 @@ export default (app) => {
     // get stock data summary
     app.get("/api/remoteApi/summary/:ticker", getStockSummary);
 
+    // get latest stock data
+    app.get("/api/remoteApi/summary/chart/:ticker", getLatestChartData);
+
     // get stock description
     app.get("/api/remoteApi/description/:ticker", getStockDescription);
 
     // get historical chart data
     app.get("/api/remoteApi/historical-chart/:ticker", getHistoricalStockData)
 
-    // get stock recent data
-    app.get("/api/remoteApi/recent/:ticker", getStockRecentData);
+    // get stock highlights data
+    app.get("/api/remoteApi/highlights/:ticker", getStockHighlights);
+
+    // update stocks in portfolio
+    app.put("/api/remoteApi/portfolio/:uid", updatePortfolioPriceByUser)
 
 
 }

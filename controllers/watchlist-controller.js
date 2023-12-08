@@ -33,7 +33,7 @@ const findWatchlistByUser = async (req, res) => {
 
 // find details in a watchlist by id
 const findWatchlistDetailsById = async (req, res) => {
-  const watchlist = await watchlistDao.findWatchlistById(req.params.pid);
+  const watchlist = await watchlistDao.findWatchlistById(req.params.wid);
   console.log("watchlist-cover-pos:", watchlist);
   const stockList = watchlist.stocks;
   const stocks = await stockDao.findStockByIds(stockList);
@@ -47,7 +47,7 @@ const findWatchlistDetailsById = async (req, res) => {
 };
 
 const findStocksByWatchlistId = async (req, res) => {
-  const watchlist = await watchlistDao.findWatchlistById(req.params.pid);
+  const watchlist = await watchlistDao.findWatchlistById(req.params.wid);
   const stockList = watchlist.stocks;
   const stocks = await stockDao.findStockByIds(stockList);
   res.json(stocks);
@@ -90,6 +90,23 @@ const findWatchlistByName = async (req, res) => {
     res.json(watchlists);
   };
 
+  const findDefaultWatchlistByUser = async (req, res) => {
+    const uid = req.params.uid;
+    console.log("uid", uid);
+    const watchlists = await playlistDao.findPlayListsByUserId({
+      user: uid,
+      isDefault: true,
+    });
+    console.log("returned, ", watchlists[0]);
+    res.json(watchlists[0]);
+  };
+
+  const updateWatchlist = async (req, res) => {
+    const newWatchlist = req.body;
+    const status = await watchlistDao.updatePlaylist(newWatchlist);
+    res.json(status);
+  };
+
   export default (app) => {
     app.get("/api/watchlists/admin/count", checkAdmin, countWatchlists);
     app.get("/api/watchlists/admin/lastpage", checkAdmin, findLatestWatchlists);
@@ -102,8 +119,8 @@ const findWatchlistByName = async (req, res) => {
   
     app.get("/api/watchlists", findWatchlists);
     app.get("/api/watchlists/:user", findWatchlistByUser);
-    app.get("/api/watchlists/details/:pid", findWatchlistDetailsById);
-    app.get("/api/watchlists/stocks/:pid", findStocksByWatchlistId);
+    app.get("/api/watchlists/details/:wid", findWatchlistDetailsById);
+    app.get("/api/watchlists/stocks/:wid", findStocksByWatchlistId);
     // app.get("/api/watchlists/:loginUser/:watchlist", checkStocks);
     app.get("/api/watchlistsdefault/:uid", findDefaultWatchlistByUser);
     app.delete("/api/watchlists", deleteWatchlist);

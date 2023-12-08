@@ -1,19 +1,16 @@
-import * as stockDao from "../dao/stock-dao.js"
-import {findStocks} from "../dao/stock-dao.js";
-import * as stocklistDao from "../dao/stocklist-dao.js";
+import stockDao from "../dao/stock-dao";
 
-
-// find a stock object by id
-const findStockByIds = async (req, res) => {
+// find a stock object by ticker
+const findStockByTickers = async (req, res) => {
   const stockList = req.body.stocklist;
-  const stocks = await stockDao.findStockByIds(stockList);
+  const stocks = await stockDao.findStockByTickers(stockList);
   res.json(stocks);
 };
 
-// create a song object
+// create a stock object
 const createStock = async (req, res) => {
   const newStock = req.body;
-  const insertedStock = await stockDao.createSong(newStock);
+  const insertedStock = await stockDao.createStock(newStock);
   res.json(insertedStock);
 };
 
@@ -39,7 +36,7 @@ const insertStockIfNotExist = async (req, res) => {
 
 
 export default (app) => {
-  app.get("/api/stocks", findStockByIds);
+  app.get("/api/stocks", findStockByTickers);
   app.post("/api/stocks", createStock);
   app.put("/api/stocks", insertStockIfNotExist);
 

@@ -1,4 +1,4 @@
-import * as stockWatchlistDao from "../dao/stockWatchlist-dao.js";
+import * as stockWatchlistDao from "../dao/stock-watchlist-dao.js";
 
 const findWatchlistByUserStock = async (req, res) => {
   const { userId, ticker } = req.params;
@@ -66,8 +66,8 @@ export default (app) => {
   app.get("/api/stockWatchlist", findCurrentUserStocks);
   app.get("/api/stockWatchlist/user/:uid", findLikedStocksByUser);
   app.get("/api/stockWatchlist/stockNumber/:uid", findStockNumbersByUserId);
-  app.get("/api/stockWatchlist/:userId/:ticker", findWatchlistByUserStock);
-  app.get("/api/stockWatchlist/:pid", findStocksByWatchlistId);
+ // app.get("/api/stockWatchlist/:userId/:ticker", findWatchlistByUserStock);
+  app.get("/api/stockWatchlist/:wid", findStocksByWatchlistId);
   app.delete("/api/stockWatchlist/:userId/:ticker", deleteStockWatchlist);
   app.post("/api/stockWatchlist", createStockWatchlistOfUser);
   app.put("/api/stockWatchlist", updateStockWatchlist);

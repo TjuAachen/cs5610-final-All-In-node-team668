@@ -4,6 +4,7 @@ const portfolioSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
     ticker: { type: mongoose.Schema.Types.ObjectId, ref: "stock", required: true },
+    name: {type: String, required: true},
     creationDate: {type: Date, required: true},
     buyPrice: {type: Number, required: true},
     shares: {type: Number, required: true},
