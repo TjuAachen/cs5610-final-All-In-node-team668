@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 import session from "express-session";
 import remoteApiController from './controllers/remoteApi-controller.js';
 import UserController from "./controllers/user-controller.js";
+import FolloweesController from "./controllers/followees-controller.js";
+import CommentController from './controllers/comment-controller.js';
 
 
 const app = express();
@@ -27,11 +29,13 @@ app.use(
 );
 
 dotenv.config();
-const CONNECTION_STRING = process.env.DB_CONNECTION || 'mongodb://localhost:27017/cs5610_all_in';
+const CONNECTION_STRING = process.env.DB_CONNECTION;
 mongoose.connect(CONNECTION_STRING);
 
 remoteApiController(app);
 UserController(app);
+FolloweesController(app);
+CommentController(app);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`Server is running on port 4000`)});
