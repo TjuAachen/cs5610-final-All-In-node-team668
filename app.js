@@ -5,7 +5,11 @@ import mongoose from "mongoose";
 import session from "express-session";
 import remoteApiController from './controllers/remoteApi-controller.js';
 import UserController from "./controllers/user-controller.js";
+import FolloweesController from "./controllers/followees-controller.js";
+import CommentController from './controllers/comment-controller.js';
 
+import FolloweesController from "./controllers/followees-controller.js";
+import CommentController from './controllers/comment-controller.js';
 
 const app = express();
 app.use(express.json());
@@ -32,6 +36,11 @@ mongoose.connect(CONNECTION_STRING);
 
 remoteApiController(app);
 UserController(app);
+FolloweesController(app);
+CommentController(app);
+
+FolloweesController(app);
+CommentController(app);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`Server is running on port 4000`)});

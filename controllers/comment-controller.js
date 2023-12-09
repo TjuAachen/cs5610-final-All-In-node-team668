@@ -62,6 +62,7 @@ const deleteComments = async (req, res) => {
       ((watchlistObj.rating * number - commentObj.rating) * 1.0) / (number - 1);
   }
   await watchlistDao.updateWatchlist(watchlistObj);
+
   const status = await commentDao.deleteComment({ _id: commentObj._id });
   res.json(status);
 };
