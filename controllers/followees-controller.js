@@ -1,4 +1,4 @@
-import * as followDao from "../dao/follow-dao.js";
+import * as followDao from "../dao/followees-dao.js";
 import * as userDao from "../dao/user-dao.js";
 import mongoose from "mongoose";
 
