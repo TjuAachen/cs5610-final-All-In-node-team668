@@ -1,4 +1,5 @@
-import stockWatchlistModel from "./models/stockWatchlist-model.js";
+// import stockWatchlistModel from "./models/stockWatchlist-model.js";
+import stockWatchlistModel from "./models/stock-watchlist-model.js"
 import stockModel from "./models/stock-model.js";
 // export const findSongById = (songId) => songModel.find({ _id: songId });
 export const findWatchlistByUserStock = (ticker, userId) =>
