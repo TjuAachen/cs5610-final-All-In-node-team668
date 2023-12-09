@@ -1,4 +1,5 @@
 import * as userDao from "../dao/user-dao.js";
+import checkAdmin from "../middleWares/checkAdmin.js";
 
 const UserController = (app) => {
   // find all users
@@ -79,6 +80,7 @@ const UserController = (app) => {
   };
 
   const findUsersPagination = async (req, res) => {
+
     const page = parseInt(req.query.page, 10);
     const limit = parseInt(req.query.limit, 10);
     const users = await userDao.findUsersPagination(page, limit);
@@ -141,6 +143,10 @@ const UserController = (app) => {
   app.get("/api/users/admin/vip/count", checkAdmin, countVipUsers);
   app.get("/api/users/admin/newbie/count", checkAdmin, countNewbieUsers);
   app.get("/api/users/admin/experienced/count", checkAdmin, countExperiencedUsers);
+  app.get("/api/users/admin/pagination", checkAdmin, findUsersPagination);
+  app.put("/api/users/admin/:_id", checkAdmin, updateUserById);
+  app.delete("/api/users/admin/:_id", checkAdmin, deleteUserById);
+
 //   app.post("/api/users", createUser);
 };
 
