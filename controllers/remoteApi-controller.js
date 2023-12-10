@@ -13,7 +13,14 @@ function getEpoch(date) {
     let epoch = new Date(date).toLocaleString("en-US", {
         timeZone: "America/Los_Angeles",
     });
-    return epoch - 0;
+    return epoch;
+}
+
+function getTimestamp(date) {
+	var date = new Date(date);
+	var arr = date.toISOString().split("T");
+	let timestamp = arr[0] + " " + arr[1].split(".")[0];
+	return timestamp;
 }
 
 function getMarketStatus(lastTimestamp) {
@@ -76,9 +83,8 @@ const getCloudStock = async (req, res) => {
     var { keyword } = req.params;
     const API_URL = Tiingo_API_URL + '/tiingo/utilities/search?query=' + keyword + `&token=${process.env.Tiingo_API_KEY}`
     await axios.get(API_URL).then((response) => {
-        response.json().then((data) => {
-            res.send(data);
-        })
+       // console.log(response.data, "debug")
+        res.send(response.data);
     }).catch((error) => {
         if (error.response) {
             console.log(`Autocomplete API failed. ${error.response.status}`);
@@ -90,7 +96,7 @@ const getCloudStock = async (req, res) => {
 }
 
 const getNews = async (req, res) => {
-    var keyword = req.query.keyword
+    var {keyword} = req.params
 
     const newsUrl = NEWS_API_URL + `?apiKey=${process.env.NEWS_API_KEY}&q=` + keyword;
     var newsObject = []
@@ -156,6 +162,7 @@ const getStockDescription = (req, res) => {
         .then((response) => {
             let results = {
                 startDate: response.data.startDate,
+                name: response.data.name,
                 description: response.data.description,
             };
 
@@ -205,7 +212,6 @@ const getStockHighlights = (req, res) => {
     const tingoo_token = process.env.Tiingo_API_KEY;
     let DAILY_URL = Tiingo_API_URL + `/tiingo/daily/${ticker}?token=${tingoo_token}`;
     let DATA_URL = Tiingo_API_URL + `/iex/?tickers=${ticker}&token=${tingoo_token}`;
-
     const promises = [axios.get(DAILY_URL), axios.get(DATA_URL)]
 
     axios
@@ -214,14 +220,14 @@ const getStockHighlights = (req, res) => {
             axios.spread((...responses) => {
                 const resp_One = responses[0].data;
                 const resp_Two = responses[1].data[0];
-
+               // console.log(resp_One, resp_Two, "debug")
                 let change = resp_Two.last - resp_Two.prevClose;
                 var currentTimestamp = moment()
                     .tz("America/Los_Angeles")
                     .format("YYYY-MM-DD HH:mm:ss");
                 var lastTimestamp = getTimestamp(resp_Two.timestamp);
                 let marketStatus = getMarketStatus(resp_Two.timestamp);
-
+                
                 let results = {
                     ticker: resp_One.ticker,
                     name: resp_One.name,
@@ -239,10 +245,10 @@ const getStockHighlights = (req, res) => {
         .catch((errors) => {
             if (errors.response) {
                 console.log(
-                    `StockRecent API failed. Error Status:  ${errors.response.status}`
+                    `Stock Highlights API failed. Error Status:  ${errors.response.status}`
                 );
             } else {
-                console.log(`StockRecent API failed`)
+                console.log(`Stock Highlights API failed`)
             }
         });
 }

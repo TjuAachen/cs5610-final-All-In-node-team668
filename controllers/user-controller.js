@@ -1,4 +1,5 @@
 import * as userDao from "../dao/user-dao.js";
+import checkAdmin from "../middleWares/checkAdmin.js";
 
 const UserController = (app) => {
   // find all users
