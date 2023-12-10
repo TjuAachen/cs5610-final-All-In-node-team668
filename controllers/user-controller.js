@@ -138,6 +138,9 @@ const UserController = (app) => {
   app.post("/api/users/login", login);
   app.post("/api/users/logout", logout);
   app.post("/api/users/register", register);
+  // app.get("/api/users/admin/vip/count", checkAdmin, countVipUsers);
+  // app.get("/api/users/admin/newbie/count", checkAdmin, countNewbieUsers);
+  // app.get("/api/users/admin/experienced/count", checkAdmin, countExperiencedUsers);
 //   app.post("/api/users", createUser);
 };
 

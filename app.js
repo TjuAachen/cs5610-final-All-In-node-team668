@@ -8,6 +8,8 @@ import UserController from "./controllers/user-controller.js";
 import FolloweesController from "./controllers/followees-controller.js";
 import CommentController from './controllers/comment-controller.js';
 
+import FolloweesController from "./controllers/followees-controller.js";
+import CommentController from './controllers/comment-controller.js';
 
 const app = express();
 app.use(express.json());
@@ -29,11 +31,14 @@ app.use(
 );
 
 dotenv.config();
-const CONNECTION_STRING = process.env.DB_CONNECTION;
+const CONNECTION_STRING = process.env.DB_CONNECTION || 'mongodb://localhost:27017/cs5610_all_in';
 mongoose.connect(CONNECTION_STRING);
 
 remoteApiController(app);
 UserController(app);
+FolloweesController(app);
+CommentController(app);
+
 FolloweesController(app);
 CommentController(app);
 

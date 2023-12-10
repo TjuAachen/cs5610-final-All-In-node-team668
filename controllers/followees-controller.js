@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 
 // When a new user register, add one more record with empty followeeList in the follow db
 export const createEmptyFolloweeList = async (req, res) => {
+    const userId = req.params.user_id;
+console.log("follow regi uid", userId)
   const newFollowObject = { user: req.params.user_id, followeeList: [] };
   const FollowObject = await followDao.createFolloweeList(newFollowObject);
   res.json(FollowObject);
@@ -13,17 +15,17 @@ export const createEmptyFolloweeList = async (req, res) => {
 // Follow or unfollow an user depending on whether it exists in one's followeelist
 const handleFollow = async (req, res) => {
   const user = req.params.user;
-  const followObj = await followDao.findFollows(user);
+  const followObj = await followDao.findFollowees(user);
 
   let followList = followObj[0].followeeList;
 
   const newId = req.body.followId;
   const index = followList.indexOf(newId);
   if (index === -1) {
-    console.log("added");
+    console.log("follow");
     followList.push(new mongoose.Types.ObjectId(newId));
   } else {
-    console.log("deleted");
+    console.log("unfollow");
     followList.splice(index, 1);
   }
   const followObjects = await userDao.findUserByIds(followList);
@@ -33,17 +35,18 @@ const handleFollow = async (req, res) => {
     user: followObj[0].user,
     followeeList: followList,
   };
-  const status = await followDao.updateFollow(user, newFollowObj);
+  const status = await followDao.updateFollowees(user, newFollowObj);
   res.json(followObjects);
 };
 
 // Find followeeList(id) according to userId
 const findFollowList = async (req, res) => {
   const user = req.params.user;
+  console.log("follow user", user)
   if (user === "null") {
     res.json([]);
   } else {
-    const followList = await followDao.findFollows(user);
+    const followList = await followDao.findFollowees(user);
     res.json(followList);
   }
 };
@@ -52,7 +55,7 @@ const findFollowList = async (req, res) => {
 // Compared to the findFollowList, this function will return all followee objects
 const findFollowObjects = async (req, res) => {
   const user = req.params.user;
-  const followObj = await followDao.findFollows(user);
+  const followObj = await followDao.findFollowees(user);
   console.log("followObj", followObj);
   const followList = followObj[0].followeeList;
   //   console.log("followList", followList);
@@ -66,7 +69,7 @@ const checkFolloweeList = async (req, res) => {
 
   // get follow object list of targetUser
   console.log("targetUser: ", targetUser);
-  const followObjTarget = await followDao.findFollows(targetUser);
+  const followObjTarget = await followDao.findFollowees(targetUser);
   console.log("followObjTarget", followObjTarget);
   const followListTarget = followObjTarget[0].followeeList;
   console.log("followListTarget", followListTarget);
@@ -80,7 +83,7 @@ const checkFolloweeList = async (req, res) => {
   let followListLogin = [];
   if (loginUser !== "null") {
     // get the followeelist of loginUser
-    const followObjLogin = await followDao.findFollows(loginUser);
+    const followObjLogin = await followDao.findFollowees(loginUser);
     followListLogin = followObjLogin[0].followeeList;
   }
 
