@@ -1,7 +1,7 @@
 import watchlistModel from "./models/watchlist-model.js";
 import userModel from "./models/user-model.js";
 import stockModel from "./models/stock-model.js";
-import stockWatchlistModel from "./models/stockWatchlist-model.js";
+import stockWatchlistModel from "./models/stock-watchlist-model.js";
 import mongoose from "mongoose";
 
 // recommend on home page

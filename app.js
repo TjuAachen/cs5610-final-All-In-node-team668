@@ -8,9 +8,6 @@ import UserController from "./controllers/user-controller.js";
 import FolloweesController from "./controllers/followees-controller.js";
 import CommentController from './controllers/comment-controller.js';
 
-import FolloweesController from "./controllers/followees-controller.js";
-import CommentController from './controllers/comment-controller.js';
-
 const app = express();
 app.use(express.json());
 
