@@ -3,7 +3,7 @@ import * as stockDao from "../dao/stock-dao.js";
 import * as userDao from "../dao/user-dao.js";
 import * as stockWatchlistDao from "../dao/stock-watchlist-dao.js";
 import * as commentDao from "../dao/comment-dao.js";
-import checkAdmin from "../middleWare/checkAdmin.js";
+import checkAdmin from "../middleWares/checkAdmin.js";
 
 // create a watchlist
 const createWatchlist = async (req, res) => {
@@ -105,6 +105,11 @@ const findWatchlistByName = async (req, res) => {
     const newWatchlist = req.body;
     const status = await watchlistDao.updatePlaylist(newWatchlist);
     res.json(status);
+  };
+
+  const countWatchlists = async (req, res) => {
+    const count = await watchlistDao.countWatchlists();
+    res.json(count);
   };
 
   export default (app) => {

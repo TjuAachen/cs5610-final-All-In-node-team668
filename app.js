@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import session from "express-session";
 import remoteApiController from './controllers/remoteApi-controller.js';
 import UserController from "./controllers/user-controller.js";
+import watchlistController from './controllers/watchlist-controller.js';
 
 
 const app = express();
@@ -32,6 +33,7 @@ mongoose.connect(CONNECTION_STRING);
 
 remoteApiController(app);
 UserController(app);
+watchlistController(app);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`Server is running on port 4000`)});

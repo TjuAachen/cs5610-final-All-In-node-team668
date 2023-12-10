@@ -7,7 +7,7 @@ const watchlistSchema = new mongoose.Schema(
         description: { type: String },
         isDefault: { type: Boolean, required: true },
         songs: { type: Array, default: [] },
-        img: { type: String, default: "/images/watchlist-cover.jpeg" },
+        img: { type: String, default: "/images/stock-cover.jpeg" },
         rating: { type: Number, default: 0 },
     },
     { collection: "watchlists" }
