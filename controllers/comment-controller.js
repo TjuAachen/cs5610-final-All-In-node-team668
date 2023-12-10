@@ -17,7 +17,7 @@ const findCommentsOfUser = async (req, res) => {
   const uid = req.params.uid;
   const comments = await commentDao.findCommentsByUserId(uid);
   const watchlistIds = comments.map((c) => c.watchlist);
-  const watchlists = await watchlistDao.findPlaylistByIds(watchlistIds);
+  const watchlists = await watchlistDao.findWatchlistByIds(watchlistIds);
   const userIds = watchlists.map((p) => p.user);
   const authorsOfWatchlists = await userDao.findUserByIds(uid);
   console.log("all watchlists: ", watchlists);
