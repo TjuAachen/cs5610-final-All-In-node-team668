@@ -1,4 +1,5 @@
 import userModel from "./models/user-model.js";
+import followeesModel from "./models/followees-model.js"
 import mongoose from "mongoose";
 
 export const countAllUsers = () => userModel.countDocuments();
@@ -28,7 +29,6 @@ export const findUserByCredentials = async ({userName, password}) => {
 };
 export const findAllUsers = () => userModel.find();
 export const createUser = async (user) => {
-    // console.log("create", user)
     const newUser = await userModel.create(user);
     return newUser;
 };
@@ -40,6 +40,56 @@ export const updateUser = async (userId, user) => {
 };
 
 
+// recommend popular users for premium users
+export const findTopUsers = async (uid) => {
+    if (uid === null) {
+        return userModel.find({isDeleted: false}).limit(5);
+    }
+    // console.log(typeof uid);
+    const followedUserIds = await followeesModel
+        .findOne({ user: uid })
+        .select("followeeList -_id")
+        .lean()
+        .exec()
+        .then((doc) => doc.followeeList);
+
+    return await userModel
+        .aggregate([
+            {
+                $match: {
+                    $and: [
+                        { _id: { $nin: followedUserIds } },
+                        { _id: { $ne: new mongoose.Types.ObjectId(uid) } },
+                        { isDeleted: false },
+                    ],
+                },
+            },
+            {
+                $lookup: {
+                    from: "watchlists",
+                    localField: "_id",
+                    foreignField: "user",
+                    as: "watchlists",
+                },
+            },
+            {
+                $addFields: {
+                    numWatchlists: {$size: "$watchlists"},
+                },
+            },
+            {
+                $sort: {
+                    numWatchlists: -1,
+                },
+            },
+            {
+                $limit: 5,
+            },
+        ])
+        .exec();
+}
+
+
 export const countVipUsers = () => userModel.countDocuments({ isVip: true, isDeleted: false });
-export const countFemaleUsers = () => userModel.countDocuments({ gender: "female", isDeleted: false });
-export const countMaleUsers = () => userModel.countDocuments({gender: "male", isDeleted: false });
+export const countNewbieUsers = () => userModel.countDocuments({ gender: "newbie", isDeleted: false });
+export const countExperiencedUsers = () => userModel.countDocuments({gender: "experienced", isDeleted: false });
