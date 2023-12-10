@@ -22,10 +22,11 @@ const deleteStockWatchlist = async (req, res) => {
 };
 
 const findStocksByWatchlistId = async (req, res) => {
-  console.log(req.params.pid);
+  const {wid} = req.params;
   const stockWatchlistObj = await stockWatchlistDao.findStocksByWatchlistId(
-    req.params.pid
+    wid
   );
+  console.log(wid, stockWatchlistObj, "debug watchlist")
   res.json(stockWatchlistObj);
 };
 
@@ -58,7 +59,7 @@ const findLikedStocksByUser = async (req, res) => {
 
 const updateStockWatchlist = async (req, res) => {
   const data = await stockWatchlistDao.updateStockWatchlist(req.body);
-  console.log("data updateStockWatchlist", data);
+ // console.log("data updateStockWatchlist", data);
   res.json(data);
 };
 

@@ -1,4 +1,4 @@
-import stockDao from "../dao/stock-dao";
+import * as stockDao from "../dao/stock-dao.js";
 
 // find a stock object by ticker
 const findStockByTickers = async (req, res) => {
@@ -29,7 +29,7 @@ const findStockByName = async (req, res) => {
 
 const insertStockIfNotExist = async (req, res) => {
     const status = await stockDao.insertStockIfNotExist(req.body);
-  const stock = await stockDao.findStockByTicker(req.body.ticker);
+  const stock = await stockDao.findStocksByTicker(req.body.ticker);
   res.json(stock);
 };
 

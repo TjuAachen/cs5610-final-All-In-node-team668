@@ -10,9 +10,10 @@ dotenv.config();
 const fmpApiKey = process.env.FMP_API_KEY;
 
 function getEpoch(date) {
-    let epoch = new Date(date).toLocaleString("en-US", {
+    let time = new Date(date).toLocaleString("en-US", {
         timeZone: "America/Los_Angeles",
     });
+    let epoch = Date.parse(time);
     return epoch;
 }
 
@@ -81,9 +82,10 @@ const getLatestIndexBySymbol = async (req, res) => {
 
 const getCloudStock = async (req, res) => {
     var { keyword } = req.params;
+    console.log(keyword, "debug getCloudStock")
     const API_URL = Tiingo_API_URL + '/tiingo/utilities/search?query=' + keyword + `&token=${process.env.Tiingo_API_KEY}`
     await axios.get(API_URL).then((response) => {
-       // console.log(response.data, "debug")
+       
         res.send(response.data);
     }).catch((error) => {
         if (error.response) {

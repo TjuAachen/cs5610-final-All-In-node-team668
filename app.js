@@ -8,6 +8,8 @@ import UserController from "./controllers/user-controller.js";
 import watchlistController from './controllers/watchlist-controller.js';
 import FolloweesController from "./controllers/followees-controller.js";
 import CommentController from './controllers/comment-controller.js';
+import stockController from './controllers/stock-controller.js';
+import stockWatchlistController from './controllers/stockWatchlist-controller.js';
 
 
 const app = express();
@@ -38,6 +40,8 @@ UserController(app);
 watchlistController(app);
 FolloweesController(app);
 CommentController(app);
+stockController(app);
+stockWatchlistController(app);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`Server is running on port 4000`)});

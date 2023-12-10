@@ -18,6 +18,7 @@ const UserController = (app) => {
     if (req.session.currentUser) {
       uid = req.session.currentUser._id;
     }
+    console.log("refresh user", uid)
     const user = await userDao.findUserById(uid);
     res.json(user);
   };

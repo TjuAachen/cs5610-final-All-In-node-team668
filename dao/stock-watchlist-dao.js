@@ -6,14 +6,14 @@ export const findWatchlistByUserStock = (ticker, userId) =>
   stockWatchlistModel.find({ ticker: ticker, userId: userId });
 export const createStockWatchlist = (obj) => stockWatchlistModel.create(obj);
 export const deleteStockWatchlist = (userId, ticker) =>
-  songPlayModel.deleteOne({ userId: userId, ticker: ticker });
+stockWatchlistModel.deleteOne({ userId: userId, ticker: ticker });
 export const deleteStockWatchlistById = (watchlistId) =>
   stockWatchlistModel.deleteMany({ watchlistId: watchlistId });
 export const findStocksByWatchlistId = (watchlistId) =>
   stockWatchlistModel
     .find({ watchlistId: watchlistId })
     .populate(
-      "ticker",
+      "stockId",
       ["ticker", "stockName", "openPrice", "highPrice", "lowPrice", "closePrice", "date", "volume"],
       stockModel
     );
@@ -23,7 +23,7 @@ export const findStocksByUserId = (userId) =>
   stockWatchlistModel
     .find({ userId: userId })
     .populate(
-        "ticker",
+      "stockId",
         ["ticker", "stockName", "openPrice", "highPrice", "lowPrice", "closePrice", "date", "volume"],
         stockModel
     );
