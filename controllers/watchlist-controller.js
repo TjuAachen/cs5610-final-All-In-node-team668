@@ -49,7 +49,7 @@ const findWatchlistDetailsById = async (req, res) => {
 const findStocksByWatchlistId = async (req, res) => {
   const watchlist = await watchlistDao.findWatchlistById(req.params.wid);
   const stockList = watchlist.stocks;
-  const stocks = await stockDao.findStockByIds(stockList);
+  const stocks = await stockDao.findStockByTickers(stockList);
   res.json(stocks);
 };
 
@@ -93,7 +93,7 @@ const findWatchlistByName = async (req, res) => {
   const findDefaultWatchlistByUser = async (req, res) => {
     const uid = req.params.uid;
     console.log("uid", uid);
-    const watchlists = await playlistDao.findPlayListsByUserId({
+    const watchlists = await watchlistDao.findWatchListsByUserId({
       user: uid,
       isDefault: true,
     });
@@ -103,7 +103,7 @@ const findWatchlistByName = async (req, res) => {
 
   const updateWatchlist = async (req, res) => {
     const newWatchlist = req.body;
-    const status = await watchlistDao.updatePlaylist(newWatchlist);
+    const status = await watchlistDao.updateWatchlist(newWatchlist);
     res.json(status);
   };
 
