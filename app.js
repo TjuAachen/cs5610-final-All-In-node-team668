@@ -10,6 +10,7 @@ import FolloweesController from "./controllers/followees-controller.js";
 import CommentController from './controllers/comment-controller.js';
 import stockController from './controllers/stock-controller.js';
 import stockWatchlistController from './controllers/stockWatchlist-controller.js';
+import homeController from './controllers/home-controller.js';
 
 
 const app = express();
@@ -35,6 +36,7 @@ dotenv.config();
 const CONNECTION_STRING = process.env.DB_CONNECTION || 'mongodb://localhost:27017/cs5610_all_in';
 mongoose.connect(CONNECTION_STRING);
 
+homeController(app);
 remoteApiController(app);
 UserController(app);
 watchlistController(app);

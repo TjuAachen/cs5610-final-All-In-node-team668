@@ -1,6 +1,6 @@
 import * as watchlistDao from "../dao/watchlist-dao.js";
 import * as userDao from "../dao/user-dao.js";
-import checkVip from "../middleWare/checkVip.js";
+import checkVip from "../middleWares/checkIfVip.js";
 
 const findTopWatchlists = async (req, res) => {
     let uid = null;
@@ -11,6 +11,7 @@ const findTopWatchlists = async (req, res) => {
     // console.log("homecontroller:", req.session.id);
     // console.log(req.session["currentUser"]);
     const watchlists = await watchlistDao.findTopWatchlists(uid);
+    console.log(watchlists, "debug watchlists");
     res.json(watchlists);
 }
 

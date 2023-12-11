@@ -19,15 +19,15 @@ const findCommentsOfUser = async (req, res) => {
   const watchlistIds = comments.map((c) => c.watchlist);
   const watchlists = await watchlistDao.findWatchlistByIds(watchlistIds);
   const userIds = watchlists.map((p) => p.user);
-  const authorsOfWatchlists = await userDao.findUserByIds(uid);
+  const authorsOfWatchlists = await userDao.findUserByIds(userIds);
   console.log("all watchlists: ", watchlists);
   console.log("all comments:", comments);
   //for each comment, find the watchlist details
   const commentsWithDetails = comments.map((c) => {
     const watchlistObj = watchlists.filter(
-      (p) => p._id.toString() == c.watchlist.toString()
+      (p) => p._id.toString() === c.watchlist.toString()
     )[0];
-    console.log("pid from comment: ", c.watchlist.toString());
+    console.log("wid from comment: ", c.watchlist.toString());
     console.log("watchlistObj in findComments", watchlistObj);
     const wName = watchlistObj.watchListName;
     const wCover = watchlistObj.img;
@@ -67,7 +67,7 @@ const deleteComments = async (req, res) => {
 };
 
 const findCommentsByWatchlist = async (req, res) => {
-  const wid = req.params.wid;
+  const {wid} = req.params;
   const comments = await commentDao.findCommentsByWatchlist(wid);
   res.json(comments);
 };
