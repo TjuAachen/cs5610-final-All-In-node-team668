@@ -90,11 +90,12 @@ const getCloudStock = async (req, res) => {
         res.send(response.data);
     }).catch((error) => {
         if (error.response) {
+            
             console.log(`Autocomplete API failed. ${error.response.status}`);
+            res.status(error.response.status).send("Too many requests")
+        }else{
+            res.status(500).send("The server breaks down");
         }
-        return {
-            error: "Error encountered during fetching Autocomplete suggestions",
-        };
     });
 }
 
@@ -150,7 +151,7 @@ const getStockSummaryLocal = async (ticker) => {
                 marketStatus: marketStatus,
                 change: resp.last - resp.prevClose,
             };
-
+            return results;
         })
         .catch((error) => {
             if (error.response) {
@@ -194,7 +195,7 @@ const getStockSummary = async (req, res) => {
             if (error.response) {
                 console.log(`Summary API failed. ${error.response.status}`);
             }
-            return { error: "Invalid ticker for Stock Summary." };
+            res.status(500).send('Internal server error');
         });
 };
 
@@ -247,6 +248,7 @@ const getHistoricalStockData = (req, res) => {
                 );
             }
             console.log("Error encountered during Last stock day chart data");
+            res.status(500).send('Internal server error');
         });
 }
 
@@ -290,8 +292,10 @@ const getStockHighlights = (req, res) => {
                 console.log(
                     `Stock Highlights API failed. Error Status:  ${errors.response.status}`
                 );
+                res.status(errors.response.status).send("Internal server error");
             } else {
                 console.log(`Stock Highlights API failed`)
+                res.status(501).send("Internal server error");
             }
         });
 }
@@ -351,7 +355,7 @@ export const updatePortfolioPriceByUser = async (req, res) => {
     
       const updateOperations = stocksInPortfolio.map(async (portfolio) => {
         const data = await getStockSummaryLocal(portfolio.ticker);
-        console.log("debug get stock summary local results", portfolio);
+       // console.log("debug get stock summary local results", portfolio);
         portfolio.currentPrice = data.close;
         portfolio.return = (data.close - portfolio.buyPrice) * portfolio.shares;
         await updatePortfolioLocal(portfolio);

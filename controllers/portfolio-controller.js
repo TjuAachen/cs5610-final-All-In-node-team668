@@ -14,7 +14,7 @@ const findPortfolio = async (req, res) => {
 
 const createPortfolio = async (req, res) => {
     const newPortfolio = req.body;
-    console.log("new portfolio", newPortfolio);
+   // console.log("new portfolio", newPortfolio);
     const insertedPortfolio = await portfolioDao.createPortfolio(newPortfolio);
     res.json(insertedPortfolio);
   };
@@ -22,15 +22,16 @@ const createPortfolio = async (req, res) => {
 
 export const deletePortfolioByPortfolioId = async (req, res) => {
     const {pid} = req.params;
-    console.log("delete portfolio by id before")
+  //  console.log("delete portfolio by id before")
     await portfolioDao.deletePortfolioByPortfolioId(pid)
     res.status(200).send("delete successfully");
-    console.log("delete portfolio by id after")
+   // console.log("delete portfolio by id after")
 
 };
 export const updatePortfolio = async (req, res) => {
     const newPortfolio = req.body;
     await portfolioDao.updatePortfolio(newPortfolio)
+    res.status(200).send("update successfully");
 }
 
 export const updatePortfolioLocal = async (newPortfolio) => {
