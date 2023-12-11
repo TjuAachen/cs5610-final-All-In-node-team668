@@ -11,6 +11,7 @@ import CommentController from './controllers/comment-controller.js';
 import stockController from './controllers/stock-controller.js';
 import stockWatchlistController from './controllers/stockWatchlist-controller.js';
 import homeController from './controllers/home-controller.js';
+import portfolioController from './controllers/portfolio-controller.js';
 
 
 const app = express();
@@ -44,6 +45,7 @@ FolloweesController(app);
 CommentController(app);
 stockController(app);
 stockWatchlistController(app);
+portfolioController(app);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`Server is running on port 4000`)});

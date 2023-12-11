@@ -5,5 +5,7 @@ export const findPortfoliosByUserId = (userId) =>
 export const deletePortfolioByUserStock = (ticker, uid) => portfolioModel.deleteOne({ticker: ticker, user: uid});
 export const createPortfolio = (portfolio) => portfolioModel.create(portfolio);
 export const updatePortfolio = (portfolio) =>
-  portfolioModel.updateOne({ ticker: portfolio.ticker, user: portfolio.user }, { $set: portfolio });
+  portfolioModel.updateOne({ _id: portfolio._id}, { $set: portfolio });
+
+  export const deletePortfolioByPortfolioId = (pid) => portfolioModel.deleteMany({_id: pid});
 

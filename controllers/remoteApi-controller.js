@@ -4,6 +4,7 @@ import { Yahoo_API_BASE, TwelveData_API_BASE, TwelveData_API_KEY, Tiingo_API_URL
 import moment from 'moment-timezone';
 import portfolioController, { updatePortfolio } from "./portfolio-controller.js";
 import { findPortfoliosByUserId } from "../dao/portfolio-dao.js";
+import { updatePortfolioLocal } from "./portfolio-controller.js";
 
 dotenv.config();
 
@@ -82,7 +83,7 @@ const getLatestIndexBySymbol = async (req, res) => {
 
 const getCloudStock = async (req, res) => {
     var { keyword } = req.params;
-    console.log(keyword, "debug getCloudStock")
+   // console.log(keyword, "debug getCloudStock")
     const API_URL = Tiingo_API_URL + '/tiingo/utilities/search?query=' + keyword + `&token=${process.env.Tiingo_API_KEY}`
     await axios.get(API_URL).then((response) => {
        
@@ -120,6 +121,46 @@ const getNews = async (req, res) => {
 
 
 }
+
+const getStockSummaryLocal = async (ticker) => {
+    console.log("debug get stock summary local function very beggining", ticker)
+  //  const { ticker } = req.params;
+    let results;
+    await axios
+        .get(Tiingo_API_URL + `/iex/?tickers=${ticker}&token=${process.env.Tiingo_API_KEY}`)
+        .then((response) => {
+            let resp = response.data[0];
+            console.log("debug get stock summary local function before", response)
+            if (!resp) {
+                return {};
+            }
+            console.log("debug get stock summary local function", response)
+            let marketStatus = getMarketStatus(resp.timestamp);
+            results = {
+                high: resp.high,
+                low: resp.low,
+                open: resp.open,
+                close: resp.prevClose,
+                volume: resp.volume,
+                mid: resp.mid ? resp.mid : "-",
+                askPrice: resp.askPrice,
+                askSize: resp.askSize,
+                bidPrice: resp.bidPrice,
+                bidSize: resp.bidSize,
+                marketStatus: marketStatus,
+                change: resp.last - resp.prevClose,
+            };
+
+        })
+        .catch((error) => {
+            if (error.response) {
+                console.log(`Summary API failed. ${error.response.status}`);
+            }
+            return { error: "Invalid ticker for Stock Summary." };
+        });
+
+        return results;
+};
 
 const getStockSummary = async (req, res) => {
     const { ticker } = req.params;
@@ -302,15 +343,29 @@ export const getLatestChartData = (req, res) => {
 export const updatePortfolioPriceByUser = async (req, res) => {
     // get the latest close price and update it:
     const { uid } = req.params;
-    await findPortfoliosByUserId(uid).then((response) => {
-        const stocksInPortfolio = response.data;
-        stocksInPortfolio.forEach(async (portfolio) => {
-            await getStockSummary(req, res).then((data) => { portfolio.currentPrice = data.close; portfolio.return = (data.close - portfolio.buyPrice) * portfolio.shares })
-            await portfolioController.updatePortfolio(portfolio);
-        });
-    }).catch((error)=> {
-        res.status(404)
-    })
+    console.log("debug portfolio update before", uid);
+    
+    try {
+      const response = await findPortfoliosByUserId(uid);
+      const stocksInPortfolio = response;
+    
+      const updateOperations = stocksInPortfolio.map(async (portfolio) => {
+        const data = await getStockSummaryLocal(portfolio.ticker);
+        console.log("debug get stock summary local results", portfolio);
+        portfolio.currentPrice = data.close;
+        portfolio.return = (data.close - portfolio.buyPrice) * portfolio.shares;
+        await updatePortfolioLocal(portfolio);
+      });
+    
+      await Promise.all(updateOperations);
+      
+      console.log("debug update end 001");
+      res.status(200).send("Update successful");
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Error updating portfolios");
+    }
+    
 }
 
 

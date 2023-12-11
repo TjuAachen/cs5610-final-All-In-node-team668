@@ -44,7 +44,7 @@ const findCurrentUserStocks = async (req, res) => {
   if (req.session.currentUser) {
     uid = req.session.currentUser._id;
   }
-  console.log("uid: ", uid);
+ // console.log("uid: ", uid);
   // search likedStocks of current user
   const data = await stockWatchlistDao.findStocksByUserId(uid);
   const stockList = data.map((stock) => stock.ticker);

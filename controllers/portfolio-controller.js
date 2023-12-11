@@ -14,24 +14,33 @@ const findPortfolio = async (req, res) => {
 
 const createPortfolio = async (req, res) => {
     const newPortfolio = req.body;
-    //console.log("newWatchlist in createWatchlist", newWatchlist);
+    console.log("new portfolio", newPortfolio);
     const insertedPortfolio = await portfolioDao.createPortfolio(newPortfolio);
     res.json(insertedPortfolio);
   };
 
 
-export const deletePortfolioByUserStock = async (req, res) => {
-    const {uid, ticker} = req.params;
-    portfolioDao.deletePortfolioByUserStock(uid, ticker)
+export const deletePortfolioByPortfolioId = async (req, res) => {
+    const {pid} = req.params;
+    console.log("delete portfolio by id before")
+    await portfolioDao.deletePortfolioByPortfolioId(pid)
+    res.status(200).send("delete successfully");
+    console.log("delete portfolio by id after")
+
 };
 export const updatePortfolio = async (req, res) => {
     const newPortfolio = req.body;
     await portfolioDao.updatePortfolio(newPortfolio)
 }
 
+export const updatePortfolioLocal = async (newPortfolio) => {
+    await portfolioDao.updatePortfolio(newPortfolio);
+    console.log("update portfolio local end")
+}
+
 export default (app) => {
     app.get("/api/portfolio", findPortfolio);
     app.post("/api/portfolio", createPortfolio);
-    app.delete("/api/portfolio", deletePortfolioByUserStock);
+    app.delete("/api/portfolio/:pid", deletePortfolioByPortfolioId);
     app.put("/api/portfolio", updatePortfolio);
 }
