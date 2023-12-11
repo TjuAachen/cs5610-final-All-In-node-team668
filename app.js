@@ -15,7 +15,6 @@ import portfolioController from './controllers/portfolio-controller.js';
 
 
 const app = express();
-app.use(express.json());
 
 app.use(
     cors({
@@ -24,14 +23,24 @@ app.use(
     })
 );
 
-app.use(
-    session({
-        secret: "secret",
-        resave: true,
-        saveUninitialized: true,
-        // cookie: { secure: false },
-    })
-);
+const sessionOptions = {
+    secret: "any string",
+    resave: false,
+    saveUninitialized: false,
+  };
+  if (process.env.NODE_ENV !== "development") {
+    sessionOptions.proxy = true;
+    sessionOptions.cookie = {
+      sameSite: "none",
+      secure: true,
+    };
+  }
+  
+  app.use(
+    session(sessionOptions)
+  );
+
+  app.use(express.json());
 
 dotenv.config();
 const CONNECTION_STRING = process.env.DB_CONNECTION || 'mongodb://localhost:27017/cs5610_all_in';
